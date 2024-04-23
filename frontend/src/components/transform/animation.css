@@ -1,0 +1,18 @@
+.fade-in-three {
+}
+
+.scale-animation {
+    animation: scaleAnimation 1s;
+}
+
+@keyframes scaleAnimation {
+    0% {
+        transform: scale(0);
+    }
+    75% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1.0);
+    }
+}

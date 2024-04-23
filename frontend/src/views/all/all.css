@@ -1,0 +1,249 @@
+.all{
+    position: relative;
+    height: 100%;
+    width: 100%;
+    background-color: white;
+    border-radius: 10px;
+    padding:1%;
+    overflow: auto;
+    animation:all 0.5s
+}
+
+@keyframes all {
+    0% {
+        transform: scale(0);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+.all-main{
+    height: auto;
+    width: 100%;
+    overflow: auto;
+    display: flex;
+    opacity: 0; /* 初始隐藏 */
+    visibility: hidden; /* 初始隐藏并且不占据空间 */
+    transition: opacity .4s, visibility 0s .4s; /* 在 0.4 秒内改变透明度，延迟隐藏 */
+    animation: all-main-show 0.5s forwards; /* 动画结束后停留在最后一帧 */
+}
+
+@keyframes all-main-show {
+    0% {
+        opacity: 0;
+        visibility: hidden;
+    }
+    100% {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+.all-main-row{
+    width: 100%;
+    height: 100%;
+}
+.upload-ant-card-body .ant-card-body{
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.upload-ant-card-body{
+    border: 1px solid #ccc; /* 灰色边框 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 3D阴影效果 */
+    transition: transform 0.3s; /* 添加鼠标悬停时的过渡效果 */
+}
+.all-card .ant-card-body{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+}
+.all-card{
+    border: 1px solid #ccc; /* 灰色边框 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 3D阴影效果 */
+    transition: transform 0.3s; /* 添加鼠标悬停时的过渡效果 */
+}
+.all-card:hover {
+    /*transform: rotateX(20deg) rotateY(20deg); !* 鼠标悬停时的3D偏转效果 *!*/
+}
+.all-col .ant-card-body{
+    display: flex;
+    justify-content: center;
+}
+.up-btn {
+    color: #090909;
+    padding: 0.7em 1.7em;
+    font-size: 18px;
+    border-radius: 0.5em;
+    background: #e8e8e8;
+    cursor: pointer;
+    border: 1px solid #e8e8e8;
+    transition: all 0.3s;
+    box-shadow: 6px 6px 12px #c5c5c5, -6px -6px 12px #ffffff;
+}
+
+.up-btn:active {
+    color: #666;
+    box-shadow: inset 4px 4px 12px #c5c5c5, inset -4px -4px 12px #ffffff;
+}
+
+.img-label {
+    white-space: nowrap; /* 禁止换行 */
+    overflow: hidden; /* 隐藏溢出的内容 */
+    text-overflow: ellipsis; /* 当内容溢出时显示省略号 */
+}
+
+
+/* Hide the default checkbox */
+.container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+    border-radius: 5px;
+}
+
+.container {
+    display: block;
+    position: relative;
+    cursor: pointer;
+    font-size: 20px;
+    user-select: none;
+    border-radius: 5px;
+    box-shadow: 2px 2px 0px rgb(183, 183, 183);
+}
+
+/* Create a custom checkbox */
+.checkmark {
+    position: relative;
+    top: 0;
+    left: 0;
+    height: 1.3em;
+    width: 1.3em;
+    background-color: #ccc;
+    border-radius: 5px;
+}
+
+/* When the checkbox is checked, add a blue background */
+.container input:checked ~ .checkmark {
+    box-shadow: 3px 3px 0px rgb(183, 183, 183);
+    transition: all 0.2s;
+    opacity: 1;
+    background-image: linear-gradient(45deg, rgb(100, 61, 219) 0%, rgb(217, 21, 239) 100%);
+}
+
+.container input ~ .checkmark {
+    transition: all 0.2s;
+    opacity: 1;
+    box-shadow: 1px 1px 0px rgb(183, 183, 183);
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark:after {
+    content: "";
+    position: absolute;
+    opacity: 0;
+    transition: all 0.2s;
+}
+
+/* Show the checkmark when checked */
+.container input:checked ~ .checkmark:after {
+    opacity: 1;
+    transition: all 0.2s;
+}
+
+/* Style the checkmark/indicator */
+.container .checkmark:after {
+    left: 0.45em;
+    top: 0.25em;
+    width: 0.25em;
+    height: 0.5em;
+    border: solid white;
+    border-width: 0 0.15em 0.15em 0;
+    transform: rotate(45deg);
+}
+
+.col-img{
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    clip-path: circle(0% at 50% 50%); /* 初始时隐藏图像 */
+    animation: expandImage 0.5s forwards; /* 应用展开动画 */
+}
+
+@keyframes expandImage {
+    0% {
+        clip-path: circle(0% at 50% 50%); /* 图像完全隐藏 */
+    }
+    100% {
+        clip-path: circle(50% at 50% 50%); /* 图像完全展示 */
+    }
+}
+
+.loading-all {
+    --speed-of-animation: 0.9s;
+    --gap: 6px;
+    --first-color: #4c86f9;
+    --second-color: #49a84c;
+    --third-color: #f6bb02;
+    --fourth-color: #f6bb02;
+    --fifth-color: #2196f3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100px;
+    gap: 6px;
+    height: 100px;
+}
+
+.loading-all span {
+    width: 4px;
+    height: 50px;
+    background: var(--first-color);
+    animation: loading var(--speed-of-animation) ease-in-out infinite;
+}
+
+.loading-all span:nth-child(2) {
+    background: var(--second-color);
+    animation-delay: -0.8s;
+}
+
+.loading-all span:nth-child(3) {
+    background: var(--third-color);
+    animation-delay: -0.7s;
+}
+
+.loading-all span:nth-child(4) {
+    background: var(--fourth-color);
+    animation-delay: -0.6s;
+}
+
+.loading-all span:nth-child(5) {
+    background: var(--fifth-color);
+    animation-delay: -0.5s;
+}
+
+@keyframes loading {
+    0%, 40%, 100% {
+        transform: scaleY(0.05);
+    }
+
+    20% {
+        transform: scaleY(1);
+    }
+}
+
+.bg-all{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0); /* 半透明的黑色背景 */
+    z-index: 999; /* 确保遮罩层在顶部 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

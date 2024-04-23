@@ -1,0 +1,81 @@
+.home-main{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: -webkit-gradient(linear, left top, left bottom, from(#f2e9fc), color-stop(87%, #8677eb))
+}
+.navbar{
+    width: 100%;
+    height: 8%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0  2%;
+}
+.logo{
+    height: 100%;
+    width: 10%;
+}
+
+.user{
+    width: 10%;
+    direction: rtl;
+}
+.home-body{
+    width: 100%;
+    height: 92%;
+    padding: 0 2% 2% 2%;
+}
+.body-main{
+    width: 100%;
+    height: 100%;
+}
+.active {
+    border-bottom: 2px solid blue;
+}
+
+/* 在菜单容器上应用 flex 布局，使菜单项水平排列 */
+.menu {
+    flex: 1; /* 使用 flex-grow 属性，让菜单占据剩余空间 */
+}
+
+.menu-ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center; /* 使用 space-around 布局，平均分配菜单项间的空间 */
+    gap: 20px;
+}
+
+.menu-ul li {
+    transition: border-bottom .3s ease; /* 添加下划线过渡效果 */
+}
+
+.menu-ul li.active {
+    border-bottom: 2px solid blue;
+}
+.menu-ul li.active .menu-span {
+    color:blue;
+}
+.menu-ul li.active svg {
+    color:blue;
+}
+.menu-ul a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #000;
+    padding-bottom: 5px; /* 为链接添加底部内边距，增加点击区域 */
+}
+
+.menu-ul a svg {
+    margin-right: 5px;
+}
+
+/* 悬停时改变菜单项的底部边框样式 */
+.menu-ul li:hover {
+    border-bottom: 2px solid blue;
+}

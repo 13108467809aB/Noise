@@ -1,0 +1,9 @@
+.datetime-main{
+    white-space: break-spaces;
+}
+.datetime{
+    display: block;
+    font-size: larger;
+    color: white;
+    text-align: center;
+}

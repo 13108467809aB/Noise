@@ -1,0 +1,9 @@
+@font-face {
+    font-family: 'HL_simple';
+    src: url('./HL_simple.ttf') format('truetype');
+}
+@font-face {
+    font-family: Helvetica;
+    src: url("./ultralight.ttf") format('TrueType');
+    font-weight: 300;
+}
