@@ -72,6 +72,7 @@ const All: React.FC = () => {
             })
             .catch(error => {
                 message.error('图片上传失败！',1);
+                console.log(error)
             });
     };
 
