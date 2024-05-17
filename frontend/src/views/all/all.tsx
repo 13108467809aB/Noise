@@ -199,10 +199,15 @@ const All: React.FC = () => {
                 }
             </div>
             <Modal
-                title="Image Upload"
+                title="上传图片"
                 open={uploadVisible}
                 onOk={handleOk}
                 onCancel={handleCancel}
+                footer={[
+                    <Button key="back" onClick={handleCancel}>取消</Button>,
+                    <Button key="submit" type="primary" onClick={handleOk}>
+                        确认
+                    </Button>, ]}
             >
                 <Form
                     requiredMark={false}
