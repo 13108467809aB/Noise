@@ -230,9 +230,9 @@ input:focus ~ .input-border {
 .panels-title{
     display: block;
     width: 200px;
-    whiteSpace: nowrap;
+    white-space: nowrap;
     overflow: hidden;
-    textOverflow: ellipsis;
+    text-overflow: ellipsis;
 }
 .panels-span{
     width: 100%;
