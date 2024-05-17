@@ -27,7 +27,6 @@ const All: React.FC = () => {
                 }));
                 setAllShow(true);
                 setImgUrl(images);
-                console.log(imgUrl);
             })
             .catch(error => {
                 console.error('Error fetching images:', error);
@@ -154,7 +153,7 @@ const All: React.FC = () => {
                                                src={item.url} alt={item.alt} className={'col-img'}/>
                                     </Col>
                                     <Col span={24} style={{height: '11%', marginTop: '2%', marginBottom: '2%',display:'flex',justifyContent:'center',gap:'10px',alignItems:'center'}}>
-                                        <span className={'img-label'}>图片id：{item.key}</span>
+                                        <span className={'img-labels'}>图片id：{item.key}</span>
                                         <span className={'img-label'}>图片名称：{item.alt}</span>
                                     </Col>
                                     <Col span={24} style={{height: '21%', marginTop: '2%', marginBottom: '2%'}}>

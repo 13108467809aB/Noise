@@ -57,17 +57,16 @@ const PanelContent: React.FC<PanelContentProps> = ({formName, noiseType}) => {
         if (id !== '') {
             setNewLoading(true);
             message.success(messageText, 1);
-            http.post( '/api' + url, {"image_id": id})
+            http.post('/api' + url, {"image_id": id})
                 .then(async response => {
                     message.success('执行成功！', 1);
                     await setNewShow(response.data.noisy_image_url); // 使用处理后的图片 URL
-                    console.log(newShow)
                     setEndShow(true)
                     setNewLoading(false);
                 })
                 .catch(error => {
                     setNewLoading(false);
-                    message.error('执行失败！', error);
+                    message.error('执行失败！', 1,error);
                     console.log(error);
                 });
         } else {
@@ -76,7 +75,7 @@ const PanelContent: React.FC<PanelContentProps> = ({formName, noiseType}) => {
         }
     };
 
-    
+
     const noiseTypes: Record<string, { message: string, url: string }> = {
         Gauss: {message: '执行高斯加噪', url: '/gauss/'},
         little: {message: '执行小波变换去噪', url: '/little/'},
@@ -90,11 +89,11 @@ const PanelContent: React.FC<PanelContentProps> = ({formName, noiseType}) => {
         motion_blur: {message: '执行运动模糊噪声加噪', url: '/motion_blur/'},
     };
 
-    const noiseImg = (id: string, noiseTypeKey: string) => {
-        const contentValue = form.getFieldValue('content');
+    const noiseImg = (id: string, noiseType: any) => {
+        const contentValue = noiseType
         if (contentValue && contentValue.toString() in noiseTypes) {
-            const noiseType = noiseTypes[contentValue.toString()];
-            handleNoise(noiseType.message, noiseType.url, id);
+            const newTypes = noiseTypes[contentValue.toString()];
+            handleNoise(newTypes.message, newTypes.url, id);
         }
     };
 
@@ -125,7 +124,7 @@ const PanelContent: React.FC<PanelContentProps> = ({formName, noiseType}) => {
                     </div>
                     <Form.Item style={{height: '25vh', display: 'flex', justifyContent: 'center'}}>
                         <div className={'old-img-show'}>
-                            <div className="card__content" style={{position:'relative'}}>
+                            <div className="card__content" style={{position: 'relative'}}>
                                 {oldShow ? (
 
                                     <Image height={'22vh'}
@@ -134,15 +133,15 @@ const PanelContent: React.FC<PanelContentProps> = ({formName, noiseType}) => {
                                            className={'old-img'}/>
                                 ) : (
                                     uploading ? (
-                                            <div className={'bg-noise'}>
-                                                <div className="loading-noise">
-                                                    <span></span>
-                                                    <span></span>
-                                                    <span></span>
-                                                    <span></span>
-                                                    <span></span>
-                                                </div>
+                                        <div className={'bg-noise'}>
+                                            <div className="loading-noise">
+                                                <span></span>
+                                                <span></span>
+                                                <span></span>
+                                                <span></span>
+                                                <span></span>
                                             </div>
+                                        </div>
                                     ) : (
                                         <div className="placeholder-div">
                                             点击提交后此处预览图片
@@ -161,9 +160,9 @@ const PanelContent: React.FC<PanelContentProps> = ({formName, noiseType}) => {
             <div className={'noise-click'}>
                 <div className={"task-commit"}>
                     <Button type="primary"
-                            onClick={() => noiseImg(form.getFieldsValue().id, form.getFieldValue('content')[0].toString())}>执行任务</Button>
+                            onClick={() => noiseImg(form.getFieldsValue().id, noiseType)}>执行任务</Button>
                     <Button danger
-                            onClick={() => setNewShow('')}>清除结果</Button>
+                            onClick={() => setEndShow(false)}>清除结果</Button>
                     <Button onClick={() => setNewShow('')}>结果保存</Button>
                 </div>
                 {/*{*/}
@@ -174,7 +173,8 @@ const PanelContent: React.FC<PanelContentProps> = ({formName, noiseType}) => {
             <div className={'noise-divider'}/>
             <div className={'noise-new'}>
                 <div className={'new-img-show'}>
-                    <div className="card__content" style={{position: "relative",display:'flex',justifyContent:'center'}}>
+                    <div className="card__content"
+                         style={{position: "relative", display: 'flex', justifyContent: 'center'}}>
                         {
                             newLoading && (
                                 <div style={{
@@ -231,7 +231,12 @@ const Noise: React.FC = () => {
             'Poisson': '泊松噪声加噪',
             'uniform': '均匀噪声加噪',
             'motion_blur': '运动模糊噪声加噪'
-        }, [allPanel, setAllPanel] = useState<number[]>([]), {token} = theme.useToken(), [isModalOpen, setIsModalOpen] = useState(false), [form] = Form.useForm(), [items, setItems] = useState<Item[]>([]), [isShow, setIsShow] = useState(false),
+        },
+        [allPanel, setAllPanel] = useState<number[]>([]),
+        {token} = theme.useToken(),
+        [isModalOpen, setIsModalOpen] = useState(false),
+        [form] = Form.useForm(), [items, setItems] = useState<Item[]>([]),
+        [isShow, setIsShow] = useState(false),
         loadPanel = useCallback(() => {
             http.get('/api/get_panels/')
                 .then(response => {
@@ -259,7 +264,7 @@ const Noise: React.FC = () => {
                                 </button>
                             </div>
                         ),
-                        children: <PanelContent formName={`control-hooks-${index}`} noiseType={panel.content}/>,
+                        children: <PanelContent formName={`control-hooks-${index}`} noiseType={panel.content[1]}/>,
                     }));
                     setItems(initializedItems);
                     const panelKeys = initializedItems.map((item: any) => item.key);
@@ -313,12 +318,12 @@ const Noise: React.FC = () => {
             form.setFieldsValue({note: '', content: []});
         }).catch(errorInfo => {
             // 表单验证失败
-            message.error('信息未完整录入，请检查输入。', errorInfo);
+            message.error('信息未完整录入，请检查输入。',1, errorInfo);
         });
     };
 
     const removeItems = (panelCheck: number[]) => {
-        message.info('正在删除···')
+        message.info('正在删除···',1)
         const deleteData = {
             indexes: panelCheck // 将索引数组放在请求的数据体中
         };
@@ -334,7 +339,7 @@ const Noise: React.FC = () => {
 
 
     const removePanel = (key: number, event: React.MouseEvent<HTMLButtonElement>): void => {
-        message.info('正在删除···')
+        message.info('正在删除···',1)
         event.stopPropagation(); // 阻止事件冒泡
         const deleteData = {
             indexes: [key]  // 将索引数组放在请求的数据体中
@@ -376,7 +381,6 @@ const Noise: React.FC = () => {
                                     children: [
                                         {value: 'many', label: '多通道联合分析降噪'},
                                         {value: 'little', label: '小波变换'},
-                                        {value: 'CNN', label: '卷积神经网络'},
                                         {value: 'NL', label: '非局部均值降噪'},
                                         {value: 'Total', label: '总差变换降噪'},
                                     ]
@@ -424,7 +428,8 @@ const Noise: React.FC = () => {
                         items.length > 0 ? (
                             <Collapse style={{background: token.colorBgContainer}}>
                                 {items.map(item => (
-                                    <Panel className={"collapse-items clip-animation"} key={item.key} header={item.label}
+                                    <Panel className={"collapse-items clip-animation"} key={item.key}
+                                           header={item.label}
                                            style={{width: '100%', backgroundColor: 'white'}}>
                                         {item.children}
                                     </Panel>

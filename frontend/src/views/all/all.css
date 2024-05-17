@@ -89,6 +89,7 @@
 }
 
 .img-label {
+    width: 50%;
     white-space: nowrap; /* 禁止换行 */
     overflow: hidden; /* 隐藏溢出的内容 */
     text-overflow: ellipsis; /* 当内容溢出时显示省略号 */
