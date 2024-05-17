@@ -99,6 +99,7 @@ const All: React.FC = () => {
             .catch(error => {
                  message.error('图片删除失败！',1);
                 setAllShow(true);
+                console.log(error)
              });
     }
 
@@ -158,7 +159,7 @@ const All: React.FC = () => {
                                     </Col>
                                     <Col span={24} style={{height: '21%', marginTop: '2%', marginBottom: '2%'}}>
                                         <div style={{width: "100%",height:'100%', display: "flex", justifyContent: "center",alignItems:"center",gap:'10px'}}>
-                                            <Button type="primary"onClick={() => downloadImage(item.url, item.alt)}>保存图片</Button>
+                                            <Button type="primary" onClick={() => downloadImage(item.url, item.alt)}>保存图片</Button>
                                             <Button danger onClick={()=>imgDelete(item.key)}>删除图片</Button>
                                         </div>
                                     </Col>

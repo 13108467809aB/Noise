@@ -305,6 +305,7 @@ const Noise: React.FC = () => {
             })
             .catch(error => {
                 message.error('任务新建失败！', 1);
+                console.log(error)
             });
         // 在此处执行表单数据验证
         // 如果验证通过，请继续提交数据
@@ -334,6 +335,7 @@ const Noise: React.FC = () => {
             })
             .catch(error => {
                 message.error('任务删除失败！', 1);
+                console.log(error)
             });
     };
 
@@ -351,6 +353,7 @@ const Noise: React.FC = () => {
             })
             .catch(error => {
                 message.error('任务删除失败！', 1);
+                console.log(error)
             });
     }
 
