@@ -396,3 +396,7 @@ input:focus ~ .input-border {
     align-items: center;
     border-radius: 20px;
 }
+
+.ant-collapse-item{
+    background-color: white;
+}

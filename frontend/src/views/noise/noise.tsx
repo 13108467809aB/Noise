@@ -1,11 +1,8 @@
 import React, {useCallback, useEffect, useState} from "react";
 import './noise.css'
 import {SearchOutlined} from "@ant-design/icons";
-import {Button, Cascader, Collapse, Form, Image, Input, message, Modal, theme} from "antd";
+import {Button, Cascader, Collapse, Form, Image, Input, message, Modal} from "antd";
 import http from "../../Axios";
-
-const {Panel} = Collapse;
-
 interface FormValues {
     id: string;
     content: string;
@@ -233,7 +230,6 @@ const Noise: React.FC = () => {
             'motion_blur': '运动模糊噪声加噪'
         },
         [allPanel, setAllPanel] = useState<number[]>([]),
-        {token} = theme.useToken(),
         [isModalOpen, setIsModalOpen] = useState(false),
         [form] = Form.useForm(), [items, setItems] = useState<Item[]>([]),
         [isShow, setIsShow] = useState(false),
@@ -356,8 +352,6 @@ const Noise: React.FC = () => {
                 console.log(error)
             });
     }
-
-
     const search = () => {
         message.error('接口还未实现', 1);
     }
@@ -429,15 +423,11 @@ const Noise: React.FC = () => {
                 <div className={"noise-container"}>
                     {isShow ? (
                         items.length > 0 ? (
-                            <Collapse style={{background: token.colorBgContainer}}>
-                                {items.map(item => (
-                                    <Panel className={"collapse-items clip-animation"} key={item.key}
-                                           header={item.label}
-                                           style={{width: '100%', backgroundColor: 'white'}}>
-                                        {item.children}
-                                    </Panel>
-                                ))}
-                            </Collapse>
+                            <Collapse
+                                accordion
+                                items={items}
+                                expandIconPosition={'end'}
+                            />
                         ) : (
                             <div className={"task-null"}>空任务</div>
                         )
