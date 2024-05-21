@@ -21,12 +21,12 @@ def add_uniform_noise(image_id, user):
     # 使用OpenCV加载原始图像
     original_img = cv2.imread(original_image_path)
 
-    # 将图像转换为灰度图像
-    gray_img = cv2.cvtColor(original_img, cv2.COLOR_BGR2GRAY)
+    # 获取图像的形状
+    rows, cols, channels = original_img.shape
 
     # 添加均匀噪声
-    noise = np.random.uniform(low=0, high=255, size=gray_img.shape)
-    noisy_img = cv2.add(gray_img, noise.astype(np.uint8))
+    noise = np.random.uniform(low=0, high=255, size=(rows, cols, channels)).astype(np.uint8)
+    noisy_img = cv2.add(original_img, noise)
 
     # 生成新的文件名，避免命名冲突
     unique_filename = f'{uuid.uuid4().hex}.png'

@@ -21,11 +21,13 @@ def add_poisson_noise(image_id, user):
     # 使用OpenCV加载原始图像
     original_img = cv2.imread(original_image_path)
 
-    # 将图像转换为灰度图像
-    gray_img = cv2.cvtColor(original_img, cv2.COLOR_BGR2GRAY)
-
     # 添加泊松噪声
-    noisy_img = np.random.poisson(gray_img / 255.0 * 20) / 20 * 255
+    noisy_img = np.zeros(original_img.shape, dtype=np.float32)
+    for i in range(3):  # 对每个通道添加噪声
+        noisy_channel = np.random.poisson(original_img[:, :, i] / 255.0 * 20) / 20 * 255
+        noisy_img[:, :, i] = np.clip(noisy_channel, 0, 255)
+
+    noisy_img = noisy_img.astype(np.uint8)  # 将数据类型转换回uint8
 
     # 生成新的文件名，避免命名冲突
     unique_filename = f'{uuid.uuid4().hex}.png'

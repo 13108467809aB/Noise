@@ -15,33 +15,31 @@ def add_salt_pepper_noise(image_id, user):
     except Image.DoesNotExist:
         return None
 
-    # 获取图片文件的绝对路径
+        # 获取图片文件的绝对路径
     original_image_path = os.path.join(settings.MEDIA_ROOT, original_image.image_file.name)
 
     # 使用OpenCV加载原始图像
     original_img = cv2.imread(original_image_path)
 
-    # 将图像转换为灰度图像
-    gray_img = cv2.cvtColor(original_img, cv2.COLOR_BGR2GRAY)
+    # 获取图像的形状
+    rows, cols, _ = original_img.shape
 
     # 添加椒噪声
-    salt_vs_pepper = 0.5  # 椒盐噪声比例
     amount = 0.04  # 噪声比例
-    num_salt = np.ceil(amount * gray_img.size * salt_vs_pepper)
-    num_pepper = np.ceil(amount * gray_img.size * (1.0 - salt_vs_pepper))
+    num_pepper = np.ceil(amount * original_img.size / 3)  # 除以3，因为图像有3个通道
 
     # 添加椒噪声
-    salt_coords = [np.random.randint(0, i - 1, int(num_salt)) for i in gray_img.shape]
-    pepper_coords = [np.random.randint(0, i - 1, int(num_pepper)) for i in gray_img.shape]
-    gray_img[salt_coords[0], salt_coords[1]] = 255
-    gray_img[pepper_coords[0], pepper_coords[1]] = 0
+    for _ in range(int(num_pepper)):
+        y = np.random.randint(0, rows)
+        x = np.random.randint(0, cols)
+        original_img[y, x] = 0  # 设置为黑色
 
     # 生成新的文件名，避免命名冲突
     unique_filename = f'{uuid.uuid4().hex}.png'
 
     # 保存加噪后的图像到media文件夹中
     noisy_image_path = os.path.join(settings.MEDIA_ROOT, 'images', unique_filename)
-    cv2.imwrite(noisy_image_path, gray_img)
+    cv2.imwrite(noisy_image_path, original_img)
 
     # 创建新的图片对象，并与用户关联
     noisy_image = Image.objects.create(
