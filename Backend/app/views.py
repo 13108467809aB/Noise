@@ -22,6 +22,7 @@ from .utils.add_salt_noise import add_salt_noise
 from .utils.add_poisson_noise import add_poisson_noise
 from .utils.add_uniform_noise import add_uniform_noise
 from .utils.add_motion_blur_noise import add_motion_blur_noise
+from .utils.bm3d_denosing import bm3d_denoising
 
 
 @api_view(['POST'])
@@ -320,6 +321,23 @@ def total_variation_denoising_view(request):
         full_denoised_image_url = settings.BACKEND_BASE_URL + denoised_image_url
         # 返回降噪后的图片URL
         return Response({'noisy_image_url': full_denoised_image_url}, status=status.HTTP_200_OK)
+    else:
+        return Response({'message': '未找到图片'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['POST'])
+def bm3d_denoising_view(request):
+    image_id = request.data.get('image_id')
+    user = request.user  # 获取当前登录的用户
+
+    # 执行BM3D降噪
+    denoised_image_url = bm3d_denoising(image_id, user)
+
+    if denoised_image_url:
+        denoised_image_url = denoised_image_url.replace("\\", "/")
+        full_denoised_image_url = settings.BACKEND_BASE_URL + denoised_image_url
+        # 返回降噪后的图片URL
+        return Response({'denoised_image_url': full_denoised_image_url}, status=status.HTTP_200_OK)
     else:
         return Response({'message': '未找到图片'}, status=status.HTTP_404_NOT_FOUND)
 

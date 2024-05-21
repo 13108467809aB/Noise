@@ -2,13 +2,14 @@ import os
 import uuid
 
 import cv2
-import pywt
+import numpy as np
+import pybm3d
 from django.conf import settings
 
 from ..models import Image
 
 
-def wavelet_denoising(image_id, user):
+def bm3d_denoising(image_id, user):
     try:
         # 根据图片ID从数据库中获取对应的图片对象，如果不存在则返回None
         original_image = Image.objects.get(image_id=image_id)
@@ -29,19 +30,9 @@ def wavelet_denoising(image_id, user):
 
     denoised_channels = []
 
-    # 对每个通道分别进行小波变换和降噪处理
+    # 对每个通道分别进行BM3D降噪处理
     for channel in channels:
-        coeffs2 = pywt.dwt2(channel, 'haar')
-        cA, (cH, cV, cD) = coeffs2
-
-        # 对小波系数进行降噪处理
-        threshold = 5  # 设定阈值，根据实际情况调整
-        cH = pywt.threshold(cH, threshold, mode='soft')
-        cV = pywt.threshold(cV, threshold, mode='soft')
-        cD = pywt.threshold(cD, threshold, mode='soft')
-
-        # 重构图像
-        denoised_channel = pywt.idwt2((cA, (cH, cV, cD)), 'haar')
+        denoised_channel = pybm3d.bm3d(channel, sigma_psd=25/255.0)  # sigma_psd 参数需要根据图像噪声水平调整
         denoised_channels.append(denoised_channel)
 
     # 合并处理后的通道
@@ -55,7 +46,7 @@ def wavelet_denoising(image_id, user):
 
     # 保存降噪后的图像到media文件夹中
     denoised_image_path = os.path.join(settings.MEDIA_ROOT, 'images', unique_filename)
-    cv2.imwrite(denoised_image_path, denoised_img)
+    cv2.imwrite(denoised_image_path, np.uint8(denoised_img * 255))
 
     # 创建新的图片对象，并与用户关联
     denoised_image = Image.objects.create(

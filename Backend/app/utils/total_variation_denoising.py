@@ -20,11 +20,24 @@ def total_variation_denoising(image_id, user):
     # 使用OpenCV加载原始图像
     original_img = cv2.imread(original_image_path)
 
-    # 将图像转换为灰度图像
-    gray_img = cv2.cvtColor(original_img, cv2.COLOR_BGR2GRAY)
+    # 如果是彩色图像，拆分为三个通道
+    if len(original_img.shape) == 3:
+        channels = cv2.split(original_img)
+    else:
+        channels = [original_img]
 
-    # 执行总差变换降噪
-    denoised_img = cv2.fastNlMeansDenoising(gray_img, None, 10, 7, 21)
+    denoised_channels = []
+
+    # 对每个通道分别进行总差变换降噪处理
+    for channel in channels:
+        denoised_channel = cv2.fastNlMeansDenoising(channel, None, 10, 7, 21)
+        denoised_channels.append(denoised_channel)
+
+    # 合并处理后的通道
+    if len(denoised_channels) == 3:
+        denoised_img = cv2.merge(denoised_channels)
+    else:
+        denoised_img = denoised_channels[0]
 
     # 生成新的文件名，避免命名冲突
     unique_filename = f'{uuid.uuid4().hex}.png'
