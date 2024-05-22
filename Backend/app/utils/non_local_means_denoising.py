@@ -1,10 +1,9 @@
-import cv2
 import os
 import uuid
-
+import cv2
+import numpy as np
 from django.conf import settings
 from ..models import Image
-
 
 def non_local_means_denoising(image_id, user):
     try:
@@ -19,8 +18,22 @@ def non_local_means_denoising(image_id, user):
     # 使用OpenCV加载原始图像
     original_img = cv2.imread(original_image_path)
 
+    if original_img is None:
+        return None
+
+    # 确保图像是uint8类型，适用于OpenCV处理
+    if original_img.dtype != np.uint8:
+        original_img = np.clip(original_img, 0, 255).astype(np.uint8)
+
+    # 参数设置
+    h = 10  # 颜色分量的强度决定滤波强度
+    hForColorComponents = 10  # 颜色组件的滤波强度
+    templateWindowSize = 7  # 模板窗口大小，必须是奇数
+    searchWindowSize = 21  # 搜索窗口大小，必须是奇数
+
     # 执行非局部均值降噪
-    denoised_img = cv2.fastNlMeansDenoisingColored(original_img, None, 10, 10, 7, 21)
+    denoised_img = cv2.fastNlMeansDenoisingColored(
+        original_img, None, h, hForColorComponents, templateWindowSize, searchWindowSize)
 
     # 生成新的文件名，避免命名冲突
     unique_filename = f'{uuid.uuid4().hex}.png'

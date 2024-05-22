@@ -166,7 +166,7 @@
     transform: rotate(45deg);
 }
 
-.col-img{
+.col-img {
     width: 100%;
     height: 100%;
     object-fit: contain;
@@ -176,12 +176,13 @@
 
 @keyframes expandImage {
     0% {
-        clip-path: circle(0% at 50% 50%); /* 图像完全隐藏 */
+        clip-path: circle(0% at 50% 50%); /* 开始时图像完全隐藏 */
     }
     100% {
-        clip-path: circle(50% at 50% 50%); /* 图像完全展示 */
+        clip-path: circle(100% at 50% 50%); /* 最终展示整个图片 */
     }
 }
+
 
 .loading-all {
     --speed-of-animation: 0.9s;

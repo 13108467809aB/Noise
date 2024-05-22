@@ -34,4 +34,5 @@ urlpatterns = [
     path('Poisson/', app.views.add_poisson_noise_view, name='add_poisson_noise'),
     path('uniform/', app.views.add_uniform_noise_view, name='add_uniform_noise'),
     path('motion_blur/', app.views.add_motion_blur_noise_view, name='add_motion_blur_noise'),
+    path('bm3d/', app.views.bm3d_denoising_view, name='bm3d_denoising'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

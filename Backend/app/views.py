@@ -337,7 +337,7 @@ def bm3d_denoising_view(request):
         denoised_image_url = denoised_image_url.replace("\\", "/")
         full_denoised_image_url = settings.BACKEND_BASE_URL + denoised_image_url
         # 返回降噪后的图片URL
-        return Response({'denoised_image_url': full_denoised_image_url}, status=status.HTTP_200_OK)
+        return Response({'noisy_image_url': full_denoised_image_url}, status=status.HTTP_200_OK)
     else:
         return Response({'message': '未找到图片'}, status=status.HTTP_404_NOT_FOUND)
 

@@ -79,6 +79,7 @@ const PanelContent: React.FC<PanelContentProps> = ({formName, noiseType}) => {
         many: {message: '执行多通道联合分析去噪', url: '/many/'},
         NL: {message: '执行非局部均值降噪', url: '/NL/'},
         Total: {message: '执行总差变换降噪', url: '/Total/'},
+        BM3D: {message: '执行BM3D降噪', url: '/bm3d/'},
         pepper: {message: '执行椒噪声加噪', url: '/pepper/'},
         salt: {message: '执行盐噪声加噪', url: '/salt/'},
         Poisson: {message: '执行泊松噪声加噪', url: '/Poisson/'},
@@ -227,7 +228,8 @@ const Noise: React.FC = () => {
             'salt': '盐噪声加噪',
             'Poisson': '泊松噪声加噪',
             'uniform': '均匀噪声加噪',
-            'motion_blur': '运动模糊噪声加噪'
+            'motion_blur': '运动模糊噪声加噪',
+            'BM3D': 'BM3D降噪',
         },
         [allPanel, setAllPanel] = useState<number[]>([]),
         [isModalOpen, setIsModalOpen] = useState(false),
@@ -380,6 +382,7 @@ const Noise: React.FC = () => {
                                         {value: 'little', label: '小波变换'},
                                         {value: 'NL', label: '非局部均值降噪'},
                                         {value: 'Total', label: '总差变换降噪'},
+                                        {value: 'BM3D', label: 'BM3D降噪'},
                                     ]
                                 },
                                 {
