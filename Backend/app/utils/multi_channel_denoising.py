@@ -1,51 +1,52 @@
+import os
+import uuid
+import cv2
 import numpy as np
+import bm3d
+from django.conf import settings
+from ..models import Image
 
+def multi_channel_denoising(image_id, user):
+    try:
+        original_image = Image.objects.get(image_id=image_id)
+    except Image.DoesNotExist:
+        return None
 
-def multi_channel_denoiser(image):
-    # 这里应有实际的多通道去噪逻辑
-    # 返回去噪后的图像
-    pass
+    original_image_path = os.path.join(settings.MEDIA_ROOT, original_image.image_file.name)
+    original_img = cv2.imread(original_image_path, cv2.IMREAD_COLOR)
 
+    if original_img is None:
+        return None
 
-def single_channel_denoiser(image):
-    # 这里应有实际的单通道去噪逻辑
-    # 返回去噪后的图像
-    pass
+    if original_img.ndim == 3:
+        img_y_cr_cb = cv2.cvtColor(original_img, cv2.COLOR_BGR2YCrCb)
+        channels = cv2.split(img_y_cr_cb)
+        result_channels = []
 
+        # Manually set the noise standard deviation
+        sigma_est = 25  # This is an example value, you might need to adjust it based on your needs
+        bm3d_kwargs = {'sigma_psd': sigma_est, 'stage_arg': bm3d.BM3DStages.ALL_STAGES}
 
-def underdetermined_transform(image):
-    # 对图像执行欠定变换
-    # 返回变换后的图像
-    pass
+        for channel in channels:
+            denoised_channel = bm3d.bm3d(channel, **bm3d_kwargs)
+            denoised_channel = np.clip(denoised_channel, 0, 255).astype(np.uint8)
+            result_channels.append(denoised_channel)
 
+        # Merge channels and convert back to BGR color space
+        denoised_img_y_cr_cb = cv2.merge(result_channels)
+        final_denoised_img = cv2.cvtColor(denoised_img_y_cr_cb, cv2.COLOR_YCrCb2BGR)
 
-def inverse_transform(transformed_image):
-    # 对变换后的图像执行逆变换
-    # 返回原始维度的图像
-    pass
+        unique_filename = f'{uuid.uuid4().hex}.png'
+        denoised_image_path = os.path.join(settings.MEDIA_ROOT, 'images', unique_filename)
+        cv2.imwrite(denoised_image_path, final_denoised_img)
 
+        denoised_image = Image.objects.create(
+            uploader=user,
+            image_name=unique_filename,
+            image_file=f'images/{unique_filename}',
+        )
 
-def fuse_images(image1, image2):
-    # 根据某种策略融合两个图像
-    # 返回融合后的图像
-    pass
+        denoised_image_url = os.path.join(settings.MEDIA_URL, 'images', unique_filename)
+        return denoised_image_url
 
-
-def denoise_image(noisy_image):
-    # 第一步：直接对噪声图像进行多通道去噪
-    denoised_multi = multi_channel_denoiser(noisy_image)
-
-    # 第二步：对噪声图像执行欠定变换并逐通道去噪
-    transformed_noisy = underdetermined_transform(noisy_image)
-    denoised_single = np.array([single_channel_denoiser(channel) for channel in transformed_noisy])
-
-    # 第三步：对单通道去噪结果执行逆变换
-    inverse_transformed = inverse_transform(denoised_single)
-
-    # 第四步：融合多通道和单通道的去噪结果
-    final_denoised = fuse_images(denoised_multi, inverse_transformed)
-
-    return final_denoised
-
-# 假设 noisy_image 是一个加载的多通道（例如RGB）噪声图像
-# final_result = denoise_image(noisy_image)
+    return None
