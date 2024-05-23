@@ -95,6 +95,32 @@ const PanelContent: React.FC<PanelContentProps> = ({formName, noiseType}) => {
         }
     };
 
+    const down_load_img = async () => {
+        if (!newShow) {
+            console.log('地址不存在');
+            return;
+        }
+
+        try {
+            const response = await fetch(newShow);
+            if (!response.ok) {
+                throw new Error('下载成功！');
+            }
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'downloaded_image.jpg'; // You can set the downloaded file name here
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            console.log('Image downloaded and newShow set to empty string');
+        } catch (error) {
+            console.error('Error downloading the image:', error);
+        }
+    };
+
     return (
         <div className={'panel-main'}>
             <div className={'noise-old'}>
@@ -161,7 +187,7 @@ const PanelContent: React.FC<PanelContentProps> = ({formName, noiseType}) => {
                             onClick={() => noiseImg(form.getFieldsValue().id, noiseType)}>执行任务</Button>
                     <Button danger
                             onClick={() => setEndShow(false)}>清除结果</Button>
-                    <Button onClick={() => setNewShow('')}>结果保存</Button>
+                    <Button onClick={() => down_load_img()}>结果保存</Button>
                 </div>
                 {/*{*/}
                 {/*    noiseType?.[1] === 'Gauss' &&*/}
