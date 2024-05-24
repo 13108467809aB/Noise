@@ -6,7 +6,7 @@
     border-radius: 10px;
     padding:1%;
     overflow: auto;
-    animation:all 0.5s
+    animation:all 0.5s;
 }
 
 @keyframes all {

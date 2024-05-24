@@ -219,14 +219,35 @@ input:focus ~ .input-border {
 .noise-click{
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: start;
 }
+
+.task-commit{
+    display: flex;
+    justify-content: space-between;
+}
+
 .noise-divider{
     height: 45vh;
     width: 1px;
     margin: 1% 2%;
     background-color: #000000;
 }
+
+.ant-collapse-item {
+    overflow: hidden; /* 确保元素内容不会溢出 */
+    animation: expandWidth 1s ease-in-out;
+}
+
+@keyframes expandWidth {
+    0% {
+        width: 0;
+    }
+    100% {
+        width: 100%;
+    }
+}
+
 .panels-title{
     display: block;
     width: 200px;

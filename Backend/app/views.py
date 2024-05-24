@@ -23,6 +23,8 @@ from .utils.add_poisson_noise import add_poisson_noise
 from .utils.add_uniform_noise import add_uniform_noise
 from .utils.add_motion_blur_noise import add_motion_blur_noise
 from .utils.bm3d_denosing import bm3d_denoising
+from .utils.gaussian_blur_denoising import gaussian_blur_denoising
+from .utils.median_blur_denoising import median_blur_denoising
 
 
 @api_view(['POST'])
@@ -88,7 +90,7 @@ def upload_image(request):
 def list_images(request):
     query_param = request.query_params.get('query', None)
     page = request.query_params.get('page', 1)
-    per_page = request.query_params.get('per_page', 10)
+    per_page = request.query_params.get('per_page', 100)
 
     images = Image.objects.all()
     if query_param:
@@ -278,9 +280,9 @@ def wavelet_denoising_view(request):
 def multi_channel_denoising_view(request):
     image_id = request.data.get('image_id')
     user = request.user  # 获取当前登录的用户
-
+    method = request.data.get('method')
     # 执行多通道联合分析的图像降噪
-    denoised_image_url = multi_channel_denoising(image_id, user)
+    denoised_image_url = multi_channel_denoising(image_id, user, method)
 
     if denoised_image_url:
         denoised_image_url = denoised_image_url.replace("\\", "/")
@@ -332,6 +334,40 @@ def bm3d_denoising_view(request):
 
     # 执行BM3D降噪
     denoised_image_url = bm3d_denoising(image_id, user)
+
+    if denoised_image_url:
+        denoised_image_url = denoised_image_url.replace("\\", "/")
+        full_denoised_image_url = settings.BACKEND_BASE_URL + denoised_image_url
+        # 返回降噪后的图片URL
+        return Response({'noisy_image_url': full_denoised_image_url}, status=status.HTTP_200_OK)
+    else:
+        return Response({'message': '未找到图片'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['POST'])
+def gaussian_denoising_view(request):
+    image_id = request.data.get('image_id')
+    user = request.user  # 获取当前登录的用户
+
+    # 执行BM3D降噪
+    denoised_image_url = gaussian_blur_denoising(image_id, user)
+
+    if denoised_image_url:
+        denoised_image_url = denoised_image_url.replace("\\", "/")
+        full_denoised_image_url = settings.BACKEND_BASE_URL + denoised_image_url
+        # 返回降噪后的图片URL
+        return Response({'noisy_image_url': full_denoised_image_url}, status=status.HTTP_200_OK)
+    else:
+        return Response({'message': '未找到图片'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['POST'])
+def median_denoising_view(request):
+    image_id = request.data.get('image_id')
+    user = request.user  # 获取当前登录的用户
+
+    # 执行BM3D降噪
+    denoised_image_url = median_blur_denoising(image_id, user)
 
     if denoised_image_url:
         denoised_image_url = denoised_image_url.replace("\\", "/")

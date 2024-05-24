@@ -1,8 +1,9 @@
 import React, {useCallback, useEffect, useState} from "react";
 import './noise.css'
 import {SearchOutlined} from "@ant-design/icons";
-import {Button, Cascader, Collapse, Form, Image, Input, message, Modal} from "antd";
+import {Button, Cascader, Col, Collapse, Form, Image, Input, message, Modal, Radio, Row} from "antd";
 import http from "../../Axios";
+
 interface FormValues {
     id: string;
     content: string;
@@ -50,11 +51,11 @@ const PanelContent: React.FC<PanelContentProps> = ({formName, noiseType}) => {
         // 返回添加了端口号的 URL 字符串
         return url.toString();
     };
-    const handleNoise = (messageText: string, url: string, id: string) => {
+    const handleNoise = (messageText: string, url: string, id: string, noiseMethod: string) => {
         if (id !== '') {
             setNewLoading(true);
             message.success(messageText, 1);
-            http.post('/api' + url, {"image_id": id})
+            http.post('/api' + url, {"image_id": id, "method": noiseMethod})
                 .then(async response => {
                     message.success('执行成功！', 1);
                     await setNewShow(response.data.noisy_image_url); // 使用处理后的图片 URL
@@ -63,7 +64,7 @@ const PanelContent: React.FC<PanelContentProps> = ({formName, noiseType}) => {
                 })
                 .catch(error => {
                     setNewLoading(false);
-                    message.error('执行失败！', 1,error);
+                    message.error('执行失败！', 1, error);
                     console.log(error);
                 });
         } else {
@@ -85,13 +86,14 @@ const PanelContent: React.FC<PanelContentProps> = ({formName, noiseType}) => {
         Poisson: {message: '执行泊松噪声加噪', url: '/Poisson/'},
         uniform: {message: '执行均匀噪声加噪', url: '/uniform/'},
         motion_blur: {message: '执行运动模糊噪声加噪', url: '/motion_blur/'},
+        Gauss_denoising: {message: '执行运高斯滤波降噪', url: '/gauss_denoising/'},
+        Median: {message: '执行中值滤波降噪', url: '/median/'},
     };
-
-    const noiseImg = (id: string, noiseType: any) => {
+    const noiseImg = (id: string, noiseType: any, noiseMethod: any) => {
         const contentValue = noiseType
         if (contentValue && contentValue.toString() in noiseTypes) {
             const newTypes = noiseTypes[contentValue.toString()];
-            handleNoise(newTypes.message, newTypes.url, id);
+            handleNoise(newTypes.message, newTypes.url, id, noiseMethod);
         }
     };
 
@@ -120,7 +122,7 @@ const PanelContent: React.FC<PanelContentProps> = ({formName, noiseType}) => {
             console.error('Error downloading the image:', error);
         }
     };
-
+    const [noiseMethod, setNoiseMethod] = useState("0");
     return (
         <div className={'panel-main'}>
             <div className={'noise-old'}>
@@ -182,13 +184,36 @@ const PanelContent: React.FC<PanelContentProps> = ({formName, noiseType}) => {
             </div>
             <div className={'noise-divider'}/>
             <div className={'noise-click'}>
-                <div className={"task-commit"}>
-                    <Button type="primary"
-                            onClick={() => noiseImg(form.getFieldsValue().id, noiseType)}>执行任务</Button>
-                    <Button danger
-                            onClick={() => setEndShow(false)}>清除结果</Button>
-                    <Button onClick={() => down_load_img()}>结果保存</Button>
-                </div>
+                <Row gutter={16}>
+                    {
+                        noiseType === 'many' ? (
+                            <Col className="gutter-row" span={24} style={{marginBottom: "10px"}}>
+                                <Form.Item
+                                    label="选择滤波器（默认为BM3D）"
+                                >
+                                    <Radio.Group size="small" defaultValue="0" buttonStyle="solid"
+                                                 style={{width: "100%"}}
+                                                 onChange={(e) => setNoiseMethod(e.target.value)}>
+                                        <Radio.Button value="0">BM3D</Radio.Button>
+                                        <Radio.Button value="1">中值滤波</Radio.Button>
+                                        <Radio.Button value="2">高斯滤波</Radio.Button>
+                                        <Radio.Button value="3">非局部均值</Radio.Button>
+                                        <Radio.Button value="4">小波变换</Radio.Button>
+                                    </Radio.Group>
+                                </Form.Item>
+                            </Col>
+                        ) : null
+                    }
+                    <Col className="gutter-row" span={24}>
+                        <div className={"task-commit"}>
+                            <Button type="primary"
+                                    onClick={() => noiseImg(form.getFieldsValue().id, noiseType, noiseMethod)}>执行任务</Button>
+                            <Button danger
+                                    onClick={() => setEndShow(false)}>清除结果</Button>
+                            <Button onClick={() => down_load_img()}>结果保存</Button>
+                        </div>
+                    </Col>
+                </Row>
                 {/*{*/}
                 {/*    noiseType?.[1] === 'Gauss' &&*/}
                 {/*    <div></div>*/}
@@ -256,6 +281,8 @@ const Noise: React.FC = () => {
             'uniform': '均匀噪声加噪',
             'motion_blur': '运动模糊噪声加噪',
             'BM3D': 'BM3D降噪',
+            'Gauss_denoising': '高斯滤波降噪',
+            'Median': '中值滤波降噪'
         },
         [allPanel, setAllPanel] = useState<number[]>([]),
         [isModalOpen, setIsModalOpen] = useState(false),
@@ -343,12 +370,12 @@ const Noise: React.FC = () => {
             form.setFieldsValue({note: '', content: []});
         }).catch(errorInfo => {
             // 表单验证失败
-            message.error('信息未完整录入，请检查输入。',1, errorInfo);
+            message.error('信息未完整录入，请检查输入。', 1, errorInfo);
         });
     };
 
     const removeItems = (panelCheck: number[]) => {
-        message.info('正在删除···',1)
+        message.info('正在删除···', 1)
         const deleteData = {
             indexes: panelCheck // 将索引数组放在请求的数据体中
         };
@@ -365,7 +392,7 @@ const Noise: React.FC = () => {
 
 
     const removePanel = (key: number, event: React.MouseEvent<HTMLButtonElement>): void => {
-        message.info('正在删除···',1)
+        message.info('正在删除···', 1)
         event.stopPropagation(); // 阻止事件冒泡
         const deleteData = {
             indexes: [key]  // 将索引数组放在请求的数据体中
@@ -409,6 +436,8 @@ const Noise: React.FC = () => {
                                         {value: 'NL', label: '非局部均值降噪'},
                                         {value: 'Total', label: '总差变换降噪'},
                                         {value: 'BM3D', label: 'BM3D降噪'},
+                                        {value: 'Gauss_denoising', label: '高斯滤波降噪'},
+                                        {value: 'Median', label: '中值滤波降噪'},
                                     ]
                                 },
                                 {

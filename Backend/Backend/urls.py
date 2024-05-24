@@ -35,4 +35,6 @@ urlpatterns = [
     path('uniform/', app.views.add_uniform_noise_view, name='add_uniform_noise'),
     path('motion_blur/', app.views.add_motion_blur_noise_view, name='add_motion_blur_noise'),
     path('bm3d/', app.views.bm3d_denoising_view, name='bm3d_denoising'),
+    path('gauss_denoising/', app.views.gaussian_denoising_view, name='gaussian_denoising'),
+    path('median/', app.views.median_denoising_view, name='median_denoising'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

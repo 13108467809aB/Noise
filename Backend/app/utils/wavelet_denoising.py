@@ -6,6 +6,7 @@ import uuid
 from django.conf import settings
 from ..models import Image
 
+
 def wavelet_denoising(image_id, user):
     try:
         original_image = Image.objects.get(image_id=image_id)
