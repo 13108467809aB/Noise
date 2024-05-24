@@ -271,7 +271,6 @@ const Noise: React.FC = () => {
     const contentMap = {
             'many': '多通道联合分析降噪',
             'little': '小波变换降噪',
-            'CNN': '卷积神经网络降噪',
             'NL': '非局部均值降噪降噪',
             'Total': '总差变换降噪降噪',
             'Gauss': '高斯噪声加噪',

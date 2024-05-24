@@ -63,7 +63,7 @@
 .frontpage-left-three,
 .frontpage-right{
     border-radius: 90px;
-    animation: scale 1s;
+    animation: scale 0.5s;
 }
 .frontpage-right-logo{
     max-width: 100%; /* 设置图片最大宽度为外层容器的宽度 */
@@ -74,9 +74,6 @@
 @keyframes scale {
     0% {
         transform: scale(0);
-    }
-    75% {
-        transform: scale(1.05);
     }
     100% {
         transform: scale(1.0);

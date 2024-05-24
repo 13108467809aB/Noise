@@ -2,7 +2,7 @@
 }
 
 .scale-animation {
-    animation: scaleAnimation 1s;
+    animation: scaleAnimation 0.5s;
 }
 
 @keyframes scaleAnimation {
@@ -10,7 +10,7 @@
         transform: scale(0);
     }
     75% {
-        transform: scale(1.05);
+        transform: scale(1.01);
     }
     100% {
         transform: scale(1.0);

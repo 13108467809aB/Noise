@@ -139,7 +139,7 @@ const All: React.FC = () => {
                     {imgUrl.map((item, index) => (
                         <Col span={6}
                              style={{
-                                 margin: '10px 0',
+                                 margin: '5px 0',
                                  height: '40vh',
                              }}
                              key={item.key}>
@@ -169,7 +169,7 @@ const All: React.FC = () => {
                         </Col>
                     ))}
                     <Col span={6} style={{
-                        margin: '10px 0',
+                        margin: '5px 0',
                         height: '40vh'
                     }}>
                         <Card style={{width: '100%', height: '100%'}} className={"upload-ant-card-body"}>
