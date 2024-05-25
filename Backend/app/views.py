@@ -265,13 +265,18 @@ def wavelet_denoising_view(request):
     user = request.user  # 获取当前登录的用户
 
     # 执行小波变换降噪
-    denoised_image_url = wavelet_denoising(image_id, user)
+    res = wavelet_denoising(image_id, user)
 
-    if denoised_image_url:
-        denoised_image_url = denoised_image_url.replace("\\", "/")
+    if res and 'denoised_image_url' in res:
+        denoised_image_url = res['denoised_image_url'].replace("\\", "/")
         full_denoised_image_url = settings.BACKEND_BASE_URL + denoised_image_url
         # 返回降噪后的图片URL
-        return Response({'noisy_image_url': full_denoised_image_url}, status=status.HTTP_200_OK)
+        return Response({
+            'noisy_image_url': full_denoised_image_url,
+            'mse': res['mse'],
+            'psnr': res['psnr'],
+            'ssim': res['ssim']
+        }, status=status.HTTP_200_OK)
     else:
         return Response({'message': '未找到图片'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -282,13 +287,18 @@ def multi_channel_denoising_view(request):
     user = request.user  # 获取当前登录的用户
     method = request.data.get('method')
     # 执行多通道联合分析的图像降噪
-    denoised_image_url = multi_channel_denoising(image_id, user, method)
+    res = multi_channel_denoising(image_id, user, method)
 
-    if denoised_image_url:
-        denoised_image_url = denoised_image_url.replace("\\", "/")
+    if res and 'denoised_image_url' in res:
+        denoised_image_url = res['denoised_image_url'].replace("\\", "/")
         full_denoised_image_url = settings.BACKEND_BASE_URL + denoised_image_url
         # 返回降噪后的图片URL
-        return Response({'noisy_image_url': full_denoised_image_url}, status=status.HTTP_200_OK)
+        return Response({
+            'noisy_image_url': full_denoised_image_url,
+            'mse': res['mse'],
+            'psnr': res['psnr'],
+            'ssim': res['ssim']
+        }, status=status.HTTP_200_OK)
     else:
         return Response({'message': '未找到图片'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -299,15 +309,20 @@ def non_local_means_denoising_view(request):
     user = request.user  # 获取当前登录的用户
 
     # 执行非局部均值降噪
-    denoised_image_url = non_local_means_denoising(image_id, user)
-
-    if denoised_image_url:
-        denoised_image_url = denoised_image_url.replace("\\", "/")
+    res = non_local_means_denoising(image_id, user)
+    if res and 'denoised_image_url' in res:
+        denoised_image_url = res['denoised_image_url'].replace("\\", "/")
         full_denoised_image_url = settings.BACKEND_BASE_URL + denoised_image_url
-        # 返回降噪后的图片URL
-        return Response({'noisy_image_url': full_denoised_image_url}, status=status.HTTP_200_OK)
+        # Include other metrics if necessary
+        return Response({
+            'noisy_image_url': full_denoised_image_url,
+            'mse': res['mse'],
+            'psnr': res['psnr'],
+            'ssim': res['ssim']
+        }, status=status.HTTP_200_OK)
     else:
-        return Response({'message': '未找到图片'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'message': '未找到图片或处理失败'}, status=status.HTTP_404_NOT_FOUND)
+
 
 
 @api_view(['POST'])
@@ -316,13 +331,18 @@ def total_variation_denoising_view(request):
     user = request.user  # 获取当前登录的用户
 
     # 执行总差变换降噪
-    denoised_image_url = total_variation_denoising(image_id, user)
+    res = total_variation_denoising(image_id, user)
 
-    if denoised_image_url:
-        denoised_image_url = denoised_image_url.replace("\\", "/")
+    if res and 'denoised_image_url' in res:
+        denoised_image_url = res['denoised_image_url'].replace("\\", "/")
         full_denoised_image_url = settings.BACKEND_BASE_URL + denoised_image_url
         # 返回降噪后的图片URL
-        return Response({'noisy_image_url': full_denoised_image_url}, status=status.HTTP_200_OK)
+        return Response({
+            'noisy_image_url': full_denoised_image_url,
+            'mse': res['mse'],
+            'psnr': res['psnr'],
+            'ssim': res['ssim']
+        }, status=status.HTTP_200_OK)
     else:
         return Response({'message': '未找到图片'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -333,13 +353,18 @@ def bm3d_denoising_view(request):
     user = request.user  # 获取当前登录的用户
 
     # 执行BM3D降噪
-    denoised_image_url = bm3d_denoising(image_id, user)
+    res = bm3d_denoising(image_id, user)
 
-    if denoised_image_url:
-        denoised_image_url = denoised_image_url.replace("\\", "/")
+    if res and 'denoised_image_url' in res:
+        denoised_image_url = res['denoised_image_url'].replace("\\", "/")
         full_denoised_image_url = settings.BACKEND_BASE_URL + denoised_image_url
         # 返回降噪后的图片URL
-        return Response({'noisy_image_url': full_denoised_image_url}, status=status.HTTP_200_OK)
+        return Response({
+            'noisy_image_url': full_denoised_image_url,
+            'mse': res['mse'],
+            'psnr': res['psnr'],
+            'ssim': res['ssim']
+        }, status=status.HTTP_200_OK)
     else:
         return Response({'message': '未找到图片'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -350,13 +375,18 @@ def gaussian_denoising_view(request):
     user = request.user  # 获取当前登录的用户
 
     # 执行BM3D降噪
-    denoised_image_url = gaussian_blur_denoising(image_id, user)
+    res = gaussian_blur_denoising(image_id, user)
 
-    if denoised_image_url:
-        denoised_image_url = denoised_image_url.replace("\\", "/")
+    if res and 'denoised_image_url' in res:
+        denoised_image_url = res['denoised_image_url'].replace("\\", "/")
         full_denoised_image_url = settings.BACKEND_BASE_URL + denoised_image_url
         # 返回降噪后的图片URL
-        return Response({'noisy_image_url': full_denoised_image_url}, status=status.HTTP_200_OK)
+        return Response({
+            'noisy_image_url': full_denoised_image_url,
+            'mse': res['mse'],
+            'psnr': res['psnr'],
+            'ssim': res['ssim']
+        }, status=status.HTTP_200_OK)
     else:
         return Response({'message': '未找到图片'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -367,13 +397,18 @@ def median_denoising_view(request):
     user = request.user  # 获取当前登录的用户
 
     # 执行BM3D降噪
-    denoised_image_url = median_blur_denoising(image_id, user)
+    res = median_blur_denoising(image_id, user)
 
-    if denoised_image_url:
-        denoised_image_url = denoised_image_url.replace("\\", "/")
+    if res and 'denoised_image_url' in res:
+        denoised_image_url = res['denoised_image_url'].replace("\\", "/")
         full_denoised_image_url = settings.BACKEND_BASE_URL + denoised_image_url
         # 返回降噪后的图片URL
-        return Response({'noisy_image_url': full_denoised_image_url}, status=status.HTTP_200_OK)
+        return Response({
+            'noisy_image_url': full_denoised_image_url,
+            'mse': res['mse'],
+            'psnr': res['psnr'],
+            'ssim': res['ssim']
+        }, status=status.HTTP_200_OK)
     else:
         return Response({'message': '未找到图片'}, status=status.HTTP_404_NOT_FOUND)
 

@@ -3,6 +3,10 @@ import uuid
 import cv2
 import numpy as np
 from django.conf import settings
+
+from .mse import calculate_mse
+from .psnr_ import calculate_psnr
+from .ssim import calculate_ssim
 from ..models import Image
 
 def gaussian_blur_denoising(image_id, user):
@@ -28,6 +32,11 @@ def gaussian_blur_denoising(image_id, user):
     sigma = 0.5
     denoised_img = cv2.GaussianBlur(original_img, kernel_size, sigma)
 
+    # 计算性能指标
+    mse_value = calculate_mse(original_img, denoised_img)
+    psnr_value = calculate_psnr(original_img, denoised_img)
+    ssim_value = calculate_ssim(original_img, denoised_img)
+
     # 保存降噪后的图像
     unique_filename = f'{uuid.uuid4().hex}.png'
     denoised_image_path = os.path.join(settings.MEDIA_ROOT, 'images', unique_filename)
@@ -42,4 +51,9 @@ def gaussian_blur_denoising(image_id, user):
 
     # 构建并返回新图像的URL
     denoised_image_url = os.path.join(settings.MEDIA_URL, 'images', unique_filename)
-    return denoised_image_url
+    return {
+        'denoised_image_url': denoised_image_url,
+        'mse': mse_value,
+        'psnr': psnr_value,
+        'ssim': ssim_value
+    }

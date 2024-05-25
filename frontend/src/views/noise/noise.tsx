@@ -22,6 +22,10 @@ const PanelContent: React.FC<PanelContentProps> = ({formName, noiseType}) => {
     const [newShow, setNewShow] = useState('')
     const [endShow, setEndShow] = useState(false)
     const [newLoading, setNewLoading] = useState(false)
+    const [noiseMsg, setNoiseMsg] = useState(false)
+    const [psnr,setPsnr] = useState(0)
+    const [ssim,setSsim] = useState(0)
+    const [mse,setMse] = useState(0)
     const onFinish = (values: FormValues) => {
         setUploading(true)
         const imageId = values.id;
@@ -59,6 +63,23 @@ const PanelContent: React.FC<PanelContentProps> = ({formName, noiseType}) => {
                 .then(async response => {
                     message.success('执行成功！', 1);
                     await setNewShow(response.data.noisy_image_url); // 使用处理后的图片 URL
+                    const denoisingUrls = [
+                        '/gauss_denoising/',
+                        '/little/',
+                        '/many/',
+                        '/NL/',
+                        '/Total/',
+                        '/bm3d/',
+                        '/median/'
+                    ];
+
+                    if (denoisingUrls.includes(url)) {
+                        setNoiseMsg(true);
+                        setPsnr(Number(response.data.psnr))
+                        setSsim(Number(response.data.ssim))
+                        setMse(Number(response.data.mse))
+                    }
+
                     setEndShow(true)
                     setNewLoading(false);
                 })
@@ -123,6 +144,10 @@ const PanelContent: React.FC<PanelContentProps> = ({formName, noiseType}) => {
         }
     };
     const [noiseMethod, setNoiseMethod] = useState("0");
+    const clear = () => {
+        setEndShow(false)
+        setNoiseMsg(false)
+    }
     return (
         <div className={'panel-main'}>
             <div className={'noise-old'}>
@@ -184,7 +209,7 @@ const PanelContent: React.FC<PanelContentProps> = ({formName, noiseType}) => {
             </div>
             <div className={'noise-divider'}/>
             <div className={'noise-click'}>
-                <Row gutter={16}>
+                <Row gutter={16} style={{width:"100%"}}>
                     {
                         noiseType === 'many' ? (
                             <Col className="gutter-row" span={24} style={{marginBottom: "10px"}}>
@@ -209,10 +234,33 @@ const PanelContent: React.FC<PanelContentProps> = ({formName, noiseType}) => {
                             <Button type="primary"
                                     onClick={() => noiseImg(form.getFieldsValue().id, noiseType, noiseMethod)}>执行任务</Button>
                             <Button danger
-                                    onClick={() => setEndShow(false)}>清除结果</Button>
+                                    onClick={() => clear()}>清除结果</Button>
                             <Button onClick={() => down_load_img()}>结果保存</Button>
                         </div>
                     </Col>
+                    {
+                        noiseMsg ? (
+                            <Col className="gutter-row" span={24} style={{marginTop:"10%"}}>
+                                <div className={"task-msg"}>
+                                    <Form.Item
+                                        label="峰值信噪比(PSNR):"
+                                    >
+                                        <span style={{display:"block"}}>{psnr.toFixed(2)}</span>
+                                    </Form.Item>
+                                    <Form.Item
+                                        label="结构相似性指数(SSIM):"
+                                    >
+                                        <span style={{display:"block"}}>{ssim.toFixed(2)}</span>
+                                    </Form.Item>
+                                    <Form.Item
+                                        label="均方误差(MSE):"
+                                    >
+                                        <span style={{display:"block"}}>{mse.toFixed(2)}</span>
+                                    </Form.Item>
+                                </div>
+                            </Col>
+                        ) : null
+                    }
                 </Row>
                 {/*{*/}
                 {/*    noiseType?.[1] === 'Gauss' &&*/}
@@ -271,8 +319,8 @@ const Noise: React.FC = () => {
     const contentMap = {
             'many': '多通道联合分析降噪',
             'little': '小波变换降噪',
-            'NL': '非局部均值降噪降噪',
-            'Total': '总差变换降噪降噪',
+            'NL': '非局部均值降噪',
+            'Total': '总差变换降噪',
             'Gauss': '高斯噪声加噪',
             'pepper': '椒噪声加噪',
             'salt': '盐噪声加噪',
