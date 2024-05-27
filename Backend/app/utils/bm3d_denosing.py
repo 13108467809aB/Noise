@@ -2,7 +2,6 @@ import os
 import uuid
 
 import cv2
-import numpy as np
 from django.conf import settings
 
 from .bm3d_steps import BM3D_1st_step, BM3D_2nd_step

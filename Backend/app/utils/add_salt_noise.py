@@ -1,12 +1,9 @@
 import os
 import uuid
-
 import cv2
 import numpy as np
 from django.conf import settings
-
 from ..models import Image
-
 
 def add_salt_noise(image_id, user):
     try:
@@ -24,17 +21,19 @@ def add_salt_noise(image_id, user):
     # 添加盐噪声
     amount = 0.04  # 噪声比例
     num_salt = np.ceil(amount * original_img.size * 3 / original_img.shape[2])  # 乘以3是因为图片有3个通道
-    salt_coords = [np.random.randint(0, i - 1, int(num_salt)) for i in original_img.shape]
+    salt_coords = (np.random.randint(0, original_img.shape[0], int(num_salt)),
+                   np.random.randint(0, original_img.shape[1], int(num_salt)))
 
     # 将噪声应用到图像的所有通道
-    original_img[salt_coords[0], salt_coords[1], :] = 255
+    noisy_img = original_img.copy()
+    noisy_img[salt_coords] = 255
 
     # 生成新的文件名，避免命名冲突
     unique_filename = f'{uuid.uuid4().hex}.png'
 
     # 保存加噪后的图像到media文件夹中
     noisy_image_path = os.path.join(settings.MEDIA_ROOT, 'images', unique_filename)
-    cv2.imwrite(noisy_image_path, original_img)
+    cv2.imwrite(noisy_image_path, noisy_img)
 
     # 创建新的图片对象，并与用户关联
     noisy_image = Image.objects.create(

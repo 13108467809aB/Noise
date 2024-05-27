@@ -21,7 +21,7 @@ from .utils.add_salt_pepper_noise import add_salt_pepper_noise
 from .utils.add_salt_noise import add_salt_noise
 from .utils.add_poisson_noise import add_poisson_noise
 from .utils.add_uniform_noise import add_uniform_noise
-from .utils.add_motion_blur_noise import add_motion_blur_noise
+from .utils.add_periodic_noise import add_periodic_noise
 from .utils.bm3d_denosing import bm3d_denoising
 from .utils.gaussian_blur_denoising import gaussian_blur_denoising
 from .utils.median_blur_denoising import median_blur_denoising
@@ -487,7 +487,7 @@ def add_motion_blur_noise_view(request):
     user = request.user  # 获取当前登录的用户
 
     # 添加运动模糊噪声
-    noisy_image_url = add_motion_blur_noise(image_id, user)
+    noisy_image_url = add_periodic_noise(image_id, user)
 
     if noisy_image_url:
         noisy_image_url = noisy_image_url.replace("\\", "/")

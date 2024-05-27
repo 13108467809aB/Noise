@@ -13,6 +13,18 @@ from .ssim import calculate_ssim
 from ..models import Image
 
 
+def adaptive_threshold(coeffs, method='BayesShrink', value=None):
+    if method == 'BayesShrink':
+        sigma = np.median(np.abs(coeffs)) / 0.6745
+        threshold = sigma ** 2 / np.mean(np.abs(coeffs))
+    elif method == 'VisuShrink':
+        threshold = np.sqrt(2 * np.log(len(coeffs))) * np.std(coeffs)
+    elif method == 'Fixed' and value is not None:
+        threshold = value
+    else:
+        threshold = np.std(coeffs)
+    return pywt.threshold(coeffs, threshold, mode='soft')
+
 def multi_channel_denoising(image_id, user, method):
     try:
         original_image = Image.objects.get(image_id=image_id)
@@ -29,16 +41,14 @@ def multi_channel_denoising(image_id, user, method):
     channels = cv2.split(img_y_cr_cb)
     result_channels = []
 
-    # Dictionary of denoising methods
     denoise_methods = {
         "0": ("BM3D", 25),
-        "1": ("Median", 5),
-        "2": ("Gaussian", (7, 7), 1.5),
+        "1": ("Median", 3),
+        "2": ("Gaussian", (7, 7), 0.3),  # 初始的高斯核大小和sigma
         "3": ("NLM", 15, 21),
-        "4": ("Wavelet", 'db1', 'soft', 2)
+        "4": ("Wavelet", 'sym8', 'soft', 3)  # 使用Symlet小波并增加分解层数到3
     }
 
-    # Process each channel
     for channel in channels:
         if method == "0":
             sigma_est, bm3d_stage_arg = denoise_methods["0"][1], bm3d.BM3DStages.ALL_STAGES
@@ -47,17 +57,18 @@ def multi_channel_denoising(image_id, user, method):
             kernel_size = denoise_methods["1"][1]
             denoised_channel = cv2.medianBlur(channel, kernel_size)
         elif method == "2":
+            # 动态调整高斯滤波的核大小和sigma
             kernel_size, sigma = denoise_methods["2"][1:]
-            denoised_channel = cv2.GaussianBlur(channel, kernel_size, sigma)
+            sigma_dynamic = np.std(channel) * 0.5  # 根据噪声水平动态调整sigma
+            denoised_channel = cv2.GaussianBlur(channel, kernel_size, sigma_dynamic)
         elif method == "3":
             strength, search_window = denoise_methods["3"][1:]
             denoised_channel = cv2.fastNlMeansDenoising(channel, None, strength, 7, search_window)
         elif method == "4":
             wavelet, mode, level = denoise_methods["4"][1:]
             coeffs = pywt.wavedec2(channel, wavelet, level=level)
-            threshold_factor = 0.1
             coeffs[1:] = [
-                tuple(pywt.threshold(detail, np.std(detail) * threshold_factor, mode=mode) for detail in level) for
+                tuple(adaptive_threshold(detail, method='BayesShrink') for detail in level) for
                 level in coeffs[1:]]
             denoised_channel = pywt.waverec2(coeffs, wavelet)
 
@@ -67,7 +78,6 @@ def multi_channel_denoising(image_id, user, method):
     denoised_img_y_cr_cb = cv2.merge(result_channels)
     final_denoised_img = cv2.cvtColor(denoised_img_y_cr_cb, cv2.COLOR_YCrCb2BGR)
 
-    # 调整尺寸以匹配原图
     if original_img.shape != final_denoised_img.shape:
         final_denoised_img = cv2.resize(final_denoised_img, (original_img.shape[1], original_img.shape[0]))
 

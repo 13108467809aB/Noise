@@ -37,6 +37,7 @@ const PanelContent: React.FC<PanelContentProps> = ({formName, noiseType}) => {
             })
             .catch(error => {
                 message.error(error.message, 1)
+                setOldShow(true)
             });
     };
 

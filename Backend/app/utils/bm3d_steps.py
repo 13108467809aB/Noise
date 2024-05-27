@@ -1,7 +1,9 @@
+from concurrent.futures import ThreadPoolExecutor
+
 import cv2
 import numpy as np
 
-# BM3D参数
+# BM3D参数定义
 sigma = 25
 Threshold_Hard3D = 2.7 * sigma
 First_Match_threshold = 2500
@@ -20,9 +22,7 @@ Step2_Search_Window = 39
 
 Beta_Kaiser = 2.0
 
-
 def init(img, blk_size, Beta_Kaiser):
-    """初始化数组和凯撒窗"""
     m_shape = img.shape
     m_img = np.zeros(m_shape, dtype=float)
     m_wight = np.zeros(m_shape, dtype=float)
@@ -30,16 +30,12 @@ def init(img, blk_size, Beta_Kaiser):
     m_Kaiser = np.outer(K, K)
     return m_img, m_wight, m_Kaiser
 
-
 def Locate_blk(i, j, blk_step, block_Size, width, height):
-    """保证blk不超出图像范围"""
     point_x = min(i * blk_step, width - block_Size)
     point_y = min(j * blk_step, height - block_Size)
     return np.array((point_x, point_y), dtype=int)
 
-
 def Define_SearchWindow(_noisyImg, _BlockPoint, _WindowSize, Blk_Size):
-    """定义搜索窗口"""
     point_x, point_y = _BlockPoint
     LX = max(point_x + Blk_Size // 2 - _WindowSize // 2, 0)
     LY = max(point_y + Blk_Size // 2 - _WindowSize // 2, 0)
@@ -47,9 +43,7 @@ def Define_SearchWindow(_noisyImg, _BlockPoint, _WindowSize, Blk_Size):
     RY = min(LY + _WindowSize, _noisyImg.shape[1])
     return np.array((LX, LY), dtype=int)
 
-
 def Step1_fast_match(_noisyImg, _BlockPoint):
-    """快速匹配"""
     present_x, present_y = _BlockPoint
     Blk_Size = Step1_Blk_Size
     Search_Step = Step1_Search_Step
@@ -104,9 +98,7 @@ def Step1_fast_match(_noisyImg, _BlockPoint):
 
     return Final_similar_blocks, blk_positions, Count
 
-
 def Step1_3DFiltering(_similar_blocks):
-    """3D变换及滤波处理"""
     statis_nonzero = 0
     m_Shape = _similar_blocks.shape
 
@@ -119,9 +111,7 @@ def Step1_3DFiltering(_similar_blocks):
 
     return _similar_blocks, statis_nonzero
 
-
 def Aggregation_hardthreshold(_similar_blocks, blk_positions, m_basic_img, m_wight_img, _nonzero_num, Count, Kaiser):
-    """加权累加，得到初步滤波的图片"""
     _shape = _similar_blocks.shape
     block_wight = (1. / _nonzero_num) * Kaiser
 
@@ -131,9 +121,7 @@ def Aggregation_hardthreshold(_similar_blocks, blk_positions, m_basic_img, m_wig
         m_basic_img[point[0]:point[0] + _shape[1], point[1]:point[1] + _shape[2]] += tem_img
         m_wight_img[point[0]:point[0] + _shape[1], point[1]:point[1] + _shape[2]] += block_wight
 
-
 def BM3D_1st_step(_noisyImg):
-    """第一步,基本去噪"""
     (width, height) = _noisyImg.shape
     block_Size = Step1_Blk_Size
     blk_step = Step1_Blk_Step
@@ -142,19 +130,21 @@ def BM3D_1st_step(_noisyImg):
 
     Basic_img, m_Wight, m_Kaiser = init(_noisyImg, Step1_Blk_Size, Beta_Kaiser)
 
-    for i in range(int(Width_num + 2)):
-        for j in range(int(Height_num + 2)):
-            m_blockPoint = Locate_blk(i, j, blk_step, block_Size, width, height)
-            Similar_Blks, Positions, Count = Step1_fast_match(_noisyImg, m_blockPoint)
-            Similar_Blks, statis_nonzero = Step1_3DFiltering(Similar_Blks)
-            Aggregation_hardthreshold(Similar_Blks, Positions, Basic_img, m_Wight, statis_nonzero, Count, m_Kaiser)
+    def process_block(i, j):
+        m_blockPoint = Locate_blk(i, j, blk_step, block_Size, width, height)
+        Similar_Blks, Positions, Count = Step1_fast_match(_noisyImg, m_blockPoint)
+        Similar_Blks, statis_nonzero = Step1_3DFiltering(Similar_Blks)
+        Aggregation_hardthreshold(Similar_Blks, Positions, Basic_img, m_Wight, statis_nonzero, Count, m_Kaiser)
+
+    with ThreadPoolExecutor() as executor:
+        for i in range(int(Width_num + 2)):
+            for j in range(int(Height_num + 2)):
+                executor.submit(process_block, i, j)
 
     Basic_img[:, :] /= m_Wight[:, :]
     return Basic_img.astype(np.uint8)
 
-
 def Step2_fast_match(_Basic_img, _noisyImg, _BlockPoint):
-    """快速匹配，返回相似的block"""
     present_x, present_y = _BlockPoint
     Blk_Size = Step2_Blk_Size
     Threshold = Second_Match_threshold
@@ -218,9 +208,7 @@ def Step2_fast_match(_Basic_img, _noisyImg, _BlockPoint):
 
     return Final_similar_blocks, Final_noisy_blocks, blk_positions, Count
 
-
 def Step2_3DFiltering(_Similar_Bscs, _Similar_Imgs):
-    """3D维纳变换的协同滤波"""
     m_Shape = _Similar_Bscs.shape
     Wiener_wight = np.zeros((m_Shape[1], m_Shape[2]), dtype=float)
 
@@ -238,9 +226,7 @@ def Step2_3DFiltering(_Similar_Bscs, _Similar_Imgs):
 
     return _Similar_Bscs, Wiener_wight
 
-
 def Aggregation_Wiener(_Similar_Blks, _Wiener_wight, blk_positions, m_basic_img, m_wight_img, Count, Kaiser):
-    """加权累加，得到滤波后的图片"""
     _shape = _Similar_Blks.shape
     block_wight = _Wiener_wight
 
@@ -250,9 +236,7 @@ def Aggregation_Wiener(_Similar_Blks, _Wiener_wight, blk_positions, m_basic_img,
         m_basic_img[point[0]:point[0] + _shape[1], point[1]:point[1] + _shape[2]] += tem_img
         m_wight_img[point[0]:point[0] + _shape[1], point[1]:point[1] + _shape[2]] += block_wight
 
-
 def BM3D_2nd_step(_basicImg, _noisyImg):
-    """第二步,改进后的分组及协同维纳滤波"""
     (width, height) = _noisyImg.shape
     block_Size = Step2_Blk_Size
     blk_step = Step2_Blk_Step
@@ -261,12 +245,16 @@ def BM3D_2nd_step(_basicImg, _noisyImg):
 
     m_img, m_Wight, m_Kaiser = init(_noisyImg, block_Size, Beta_Kaiser)
 
-    for i in range(int(Width_num + 2)):
-        for j in range(int(Height_num + 2)):
-            m_blockPoint = Locate_blk(i, j, blk_step, block_Size, width, height)
-            Similar_Blks, Similar_Imgs, Positions, Count = Step2_fast_match(_basicImg, _noisyImg, m_blockPoint)
-            Similar_Blks, Wiener_wight = Step2_3DFiltering(Similar_Blks, Similar_Imgs)
-            Aggregation_Wiener(Similar_Blks, Wiener_wight, Positions, m_img, m_Wight, Count, m_Kaiser)
+    def process_block(i, j):
+        m_blockPoint = Locate_blk(i, j, blk_step, block_Size, width, height)
+        Similar_Blks, Similar_Imgs, Positions, Count = Step2_fast_match(_basicImg, _noisyImg, m_blockPoint)
+        Similar_Blks, Wiener_wight = Step2_3DFiltering(Similar_Blks, Similar_Imgs)
+        Aggregation_Wiener(Similar_Blks, Wiener_wight, Positions, m_img, m_Wight, Count, m_Kaiser)
+
+    with ThreadPoolExecutor() as executor:
+        for i in range(int(Width_num + 2)):
+            for j in range(int(Height_num + 2)):
+                executor.submit(process_block, i, j)
 
     m_img[:, :] /= m_Wight[:, :]
     return m_img.astype(np.uint8)

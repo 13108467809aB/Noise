@@ -1,12 +1,13 @@
 import os
 import uuid
-
 import cv2
 import numpy as np
 from django.conf import settings
-
 from ..models import Image
 
+# 定义均匀噪声的强度范围
+NOISE_LOW = 0
+NOISE_HIGH = 70
 
 def add_uniform_noise(image_id, user):
     try:
@@ -25,8 +26,11 @@ def add_uniform_noise(image_id, user):
     rows, cols, channels = original_img.shape
 
     # 添加均匀噪声
-    noise = np.random.uniform(low=0, high=255, size=(rows, cols, channels)).astype(np.uint8)
+    noise = np.random.uniform(low=NOISE_LOW, high=NOISE_HIGH, size=(rows, cols, channels)).astype(np.uint8)
     noisy_img = cv2.add(original_img, noise)
+
+    # 确保像素值在0-255之间
+    noisy_img = np.clip(noisy_img, 0, 255).astype(np.uint8)
 
     # 生成新的文件名，避免命名冲突
     unique_filename = f'{uuid.uuid4().hex}.png'

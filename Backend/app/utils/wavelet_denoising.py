@@ -9,6 +9,18 @@ from .psnr_ import calculate_psnr
 from .ssim import calculate_ssim
 from ..models import Image
 
+def adaptive_threshold(coeffs, method='BayesShrink', value=None):
+    if method == 'BayesShrink':
+        sigma = np.median(np.abs(coeffs)) / 0.6745
+        threshold = sigma ** 2 / np.mean(np.abs(coeffs))
+    elif method == 'VisuShrink':
+        threshold = np.sqrt(2 * np.log(len(coeffs))) * np.std(coeffs)
+    elif method == 'Fixed' and value is not None:
+        threshold = value
+    else:
+        threshold = np.std(coeffs)
+    return pywt.threshold(coeffs, threshold, mode='soft')
+
 def wavelet_denoising(image_id, user):
     try:
         original_image = Image.objects.get(image_id=image_id)
@@ -26,12 +38,11 @@ def wavelet_denoising(image_id, user):
     channels = cv2.split(img_y_cr_cb)
 
     denoised_channels = []
-    threshold_factor = 0.1
 
     for channel in channels:
-        coeffs = pywt.wavedec2(channel, 'db1', level=2)
-        coeffs[1:] = [tuple(pywt.threshold(detail, np.std(detail)*threshold_factor, mode='soft') for detail in level) for level in coeffs[1:]]
-        denoised_channel = pywt.waverec2(coeffs, 'db1')
+        coeffs = pywt.wavedec2(channel, 'sym8', level=3)  # 使用Symlet小波并增加分解层数
+        coeffs[1:] = [tuple(adaptive_threshold(detail, method='BayesShrink') for detail in level) for level in coeffs[1:]]
+        denoised_channel = pywt.waverec2(coeffs, 'sym8')
         denoised_channels.append(denoised_channel)
 
     # 合并通道并转换颜色空间回到BGR

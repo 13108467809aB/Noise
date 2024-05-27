@@ -23,7 +23,7 @@ def add_gaussian_noise(image_id, user):
 
     # 添加高斯噪声
     mean = 0
-    sigma = 25
+    sigma = 10
     gauss = np.random.normal(mean, sigma, original_img.shape)
     noisy_img = original_img + gauss
 
