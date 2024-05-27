@@ -107,7 +107,7 @@ const PanelContent: React.FC<PanelContentProps> = ({formName, noiseType}) => {
         salt: {message: '执行盐噪声加噪', url: '/salt/'},
         Poisson: {message: '执行泊松噪声加噪', url: '/Poisson/'},
         uniform: {message: '执行均匀噪声加噪', url: '/uniform/'},
-        motion_blur: {message: '执行运动模糊噪声加噪', url: '/motion_blur/'},
+        motion_blur: {message: '执行周期噪声加噪', url: '/motion_blur/'},
         Gauss_denoising: {message: '执行运高斯滤波降噪', url: '/gauss_denoising/'},
         Median: {message: '执行中值滤波降噪', url: '/median/'},
     };
@@ -327,7 +327,7 @@ const Noise: React.FC = () => {
             'salt': '盐噪声加噪',
             'Poisson': '泊松噪声加噪',
             'uniform': '均匀噪声加噪',
-            'motion_blur': '运动模糊噪声加噪',
+            'motion_blur': '周期噪声加噪',
             'BM3D': 'BM3D降噪',
             'Gauss_denoising': '高斯滤波降噪',
             'Median': '中值滤波降噪'
@@ -497,7 +497,7 @@ const Noise: React.FC = () => {
                                         {value: 'salt', label: '盐噪声'},
                                         {value: 'Poisson', label: '泊松噪声'},
                                         {value: 'uniform', label: '均匀噪声'},
-                                        {value: 'motion_blur', label: '运动模糊噪声'},
+                                        {value: 'motion_blur', label: '周期噪声'},
                                     ]
                                 }
                             ]}
