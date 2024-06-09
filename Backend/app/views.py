@@ -500,3 +500,22 @@ def add_motion_blur_noise_view(request):
 
 def my_page(request):
     return render(request, 'home.html')
+
+
+@api_view(['POST'])
+def delete_all_images(request):
+    # 检查当前用户是否已经登录
+    if not request.user.is_authenticated:
+        return Response({'message': '用户未登录'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    # 获取所有图片记录
+    images = Image.objects.all()
+
+    # 删除所有图片文件和数据库记录
+    for image in images:
+        image_file_path = image.image_file.path
+        image.delete()
+        if os.path.exists(image_file_path):
+            os.remove(image_file_path)
+
+    return Response({'message': '所有图片已被删除'}, status=status.HTTP_204_NO_CONTENT)

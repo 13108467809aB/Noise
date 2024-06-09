@@ -56,7 +56,7 @@ const All: React.FC = () => {
 
     const onFinish = (values: any) => {
         if (fileList.length === 0) {
-            message.error('请上传文件',1);
+            message.error('请上传文件', 1);
             return;
         }
         const formData = new FormData();
@@ -65,13 +65,13 @@ const All: React.FC = () => {
         formData.append("uploader", "1");
         http.post('/api/upload/', formData)
             .then(response => {
-                message.success('图片上传成功！',1);
+                message.success('图片上传成功！', 1);
                 form.resetFields();
                 setUploadVisible(false);
                 fetchImages()
             })
             .catch(error => {
-                message.error('图片上传失败！',1);
+                message.error('图片上传失败！', 1);
                 console.log(error)
             });
     };
@@ -94,14 +94,14 @@ const All: React.FC = () => {
         message.info('删除正在执行中···')
         http.delete(`/api/delete/${id}/`)
             .then(response => {
-                 fetchImages();
-                message.success('图片删除成功！',1);
-             })
+                fetchImages();
+                message.success('图片删除成功！', 1);
+            })
             .catch(error => {
-                 message.error('图片删除失败！',1);
+                message.error('图片删除失败！', 1);
                 setAllShow(true);
                 console.log(error)
-             });
+            });
     }
 
     const downloadImage = (imageUrl: string, imageName: string) => {
@@ -131,60 +131,91 @@ const All: React.FC = () => {
             });
     };
 
+    const delAll = ()=>{
+        http.post(`/api/delall/`)
+            .then(response => {
+                fetchImages();
+                message.success('图片删除成功！', 1);
+            })
+            .catch(error => {
+                message.error('图片删除失败！', 1);
+                setAllShow(true);
+                console.log(error)
+            });
+    }
     return (
         <React.Fragment>
             <div className={"all"}>
-                { allShow ? (
-                <Row gutter={10} className={"all-main"}>
-                    {imgUrl.map((item, index) => (
-                        <Col span={6}
-                             style={{
-                                 margin: '5px 0',
-                                 height: '40vh',
-                             }}
-                             key={item.key}>
-                            <Card style={{width: '100%', height: '40vh'}} className={'all-card'}>
-                                <Row gutter={16} className={"all-main-row"}>
-                                    <Col span={24} style={{
-                                        width: "100%",
-                                        height: "60%",
-                                        display: 'flex',
-                                        justifyContent: 'center'
-                                    }}>
-                                        <Image key={index} height={'100%'} style={{objectFit: 'contain'}}
-                                               src={item.url} alt={item.alt} className={'col-img'}/>
-                                    </Col>
-                                    <Col span={24} style={{height: '11%', marginTop: '2%', marginBottom: '2%',display:'flex',justifyContent:'center',gap:'10px',alignItems:'center'}}>
-                                        <span className={'img-labels'}>图片id：{item.key}</span>
-                                        <span className={'img-label'}>图片名称：{item.alt}</span>
-                                    </Col>
-                                    <Col span={24} style={{height: '21%', marginTop: '2%', marginBottom: '2%'}}>
-                                        <div style={{width: "100%",height:'100%', display: "flex", justifyContent: "center",alignItems:"center",gap:'10px'}}>
-                                            <Button type="primary" onClick={() => downloadImage(item.url, item.alt)}>保存图片</Button>
-                                            <Button danger onClick={()=>imgDelete(item.key)}>删除图片</Button>
-                                        </div>
-                                    </Col>
-                                </Row>
+                <div className={"del-all"}>
+                    <button onClick={()=>delAll()}>删除全部</button>
+                </div>
+                {allShow ? (
+                    <Row gutter={10} className={"all-main"}>
+                        {imgUrl.map((item, index) => (
+                            <Col span={6}
+                                 style={{
+                                     margin: '5px 0',
+                                     height: '40vh',
+                                 }}
+                                 key={item.key}>
+                                <Card style={{width: '100%', height: '40vh'}} className={'all-card'}>
+                                    <Row gutter={16} className={"all-main-row"}>
+                                        <Col span={24} style={{
+                                            width: "100%",
+                                            height: "60%",
+                                            display: 'flex',
+                                            justifyContent: 'center'
+                                        }}>
+                                            <Image key={index} height={'100%'} style={{objectFit: 'contain'}}
+                                                   src={item.url} alt={item.alt} className={'col-img'}/>
+                                        </Col>
+                                        <Col span={24} style={{
+                                            height: '11%',
+                                            marginTop: '2%',
+                                            marginBottom: '2%',
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                            gap: '10px',
+                                            alignItems: 'center'
+                                        }}>
+                                            <span className={'img-labels'}>图片id：{item.key}</span>
+                                            <span className={'img-label'}>图片名称：{item.alt}</span>
+                                        </Col>
+                                        <Col span={24} style={{height: '21%', marginTop: '2%', marginBottom: '2%'}}>
+                                            <div style={{
+                                                width: "100%",
+                                                height: '100%',
+                                                display: "flex",
+                                                justifyContent: "center",
+                                                alignItems: "center",
+                                                gap: '10px'
+                                            }}>
+                                                <Button type="primary"
+                                                        onClick={() => downloadImage(item.url, item.alt)}>保存图片</Button>
+                                                <Button danger onClick={() => imgDelete(item.key)}>删除图片</Button>
+                                            </div>
+                                        </Col>
+                                    </Row>
+                                </Card>
+                            </Col>
+                        ))}
+                        <Col span={6} style={{
+                            margin: '5px 0',
+                            height: '40vh'
+                        }}>
+                            <Card style={{width: '100%', height: '100%'}} className={"upload-ant-card-body"}>
+                                <Col span={24} style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center'
+                                }}>
+                                    <button className={'up-btn'} onClick={handleUpload}>上传图片</button>
+                                </Col>
                             </Card>
                         </Col>
-                    ))}
-                    <Col span={6} style={{
-                        margin: '5px 0',
-                        height: '40vh'
-                    }}>
-                        <Card style={{width: '100%', height: '100%'}} className={"upload-ant-card-body"}>
-                            <Col span={24} style={{
-                                width: "100%",
-                                height: "100%",
-                                display: 'flex',
-                                justifyContent: 'center',
-                                alignItems: 'center'
-                            }}>
-                                <button className={'up-btn'} onClick={handleUpload}>上传图片</button>
-                            </Col>
-                        </Card>
-                    </Col>
-                </Row>
+                    </Row>
                 ) : (
                     <div className={'bg-all'}>
                         <div className="loading-all">
@@ -207,7 +238,7 @@ const All: React.FC = () => {
                     <Button key="back" onClick={handleCancel}>取消</Button>,
                     <Button key="submit" type="primary" onClick={handleOk}>
                         确认
-                    </Button>, ]}
+                    </Button>,]}
             >
                 <Form
                     requiredMark={false}

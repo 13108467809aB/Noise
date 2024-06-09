@@ -28,6 +28,11 @@
     animation: all-main-show 0.5s forwards; /* 动画结束后停留在最后一帧 */
 }
 
+.del-all{
+    width: 100%;
+    height: 5vh;
+}
+
 @keyframes all-main-show {
     0% {
         opacity: 0;

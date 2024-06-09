@@ -37,4 +37,5 @@ urlpatterns = [
     path('bm3d/', app.views.bm3d_denoising_view, name='bm3d_denoising'),
     path('gauss_denoising/', app.views.gaussian_denoising_view, name='gaussian_denoising'),
     path('median/', app.views.median_denoising_view, name='median_denoising'),
+    path('delall/', app.views.delete_all_images, name='delall'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
